@@ -1,0 +1,38 @@
+INFO 2025-04-24 14:41:04,604 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:44:05,886 autoreload Watching for file changes with StatReloader
+ERROR 2025-04-24 14:44:54,519 models Error creating token or profile for user Chinedu: Cannot query "Chinedu": Must be "User" instance.
+ERROR 2025-04-24 14:44:54,520 views Registration error: Cannot query "Chinedu": Must be "User" instance.
+ERROR 2025-04-24 14:44:54,522 log Internal Server Error: /api/auth/register/
+ERROR 2025-04-24 14:44:54,523 basehttp "POST /api/auth/register/ HTTP/1.1" 500 85
+INFO 2025-04-24 14:45:39,731 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 14:45:42,389 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:46:05,917 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\users\models.py changed, reloading.
+INFO 2025-04-24 14:46:08,060 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:46:23,277 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\serializers.py changed, reloading.
+INFO 2025-04-24 14:46:25,118 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:46:39,430 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\serializers.py changed, reloading.
+INFO 2025-04-24 14:46:41,432 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:46:58,306 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\views.py changed, reloading.
+INFO 2025-04-24 14:47:01,599 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:47:09,455 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\views.py changed, reloading.
+INFO 2025-04-24 14:47:11,658 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 14:47:19,764 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\serializers.py changed, reloading.
+INFO 2025-04-24 14:47:22,328 autoreload Watching for file changes with StatReloader
+ERROR 2025-04-24 15:02:01,336 models Error creating token or profile for user david: insert or update on table "authtoken_token" violates foreign key constraint "authtoken_token_user_id_35299eff_fk_auth_user_id"
+DETAIL:  Key (user_id)=(2) is not present in table "auth_user".
+
+INFO 2025-04-24 15:02:03,754 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:09:40,915 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 15:09:43,442 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:09:57,727 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 15:09:59,559 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:10:14,108 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 15:10:15,838 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:10:37,737 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 15:10:39,406 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:10:54,927 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\discordClone\settings.py changed, reloading.
+INFO 2025-04-24 15:10:56,739 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:16:02,405 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:17:48,845 autoreload Watching for file changes with StatReloader
+INFO 2025-04-24 15:19:14,169 basehttp "POST /api/auth/register/ HTTP/1.1" 201 120
+INFO 2025-04-24 15:20:23,886 basehttp "POST /api/auth/login/ HTTP/1.1" 200 120
