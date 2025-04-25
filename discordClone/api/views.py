@@ -28,6 +28,7 @@ from .serializers import (
 
     # Channel serializers
     ChannelSerializer,
+    DirectMessageChannelSerializer,
 
     # Message serializers
     MessageSerializer,
@@ -46,7 +47,7 @@ from .serializers import (
 from .models import UserProfile
 from users.models import Users
 from servers.models import Servers, ServerMember, ServerRole, ServerInvite
-from channels.models import Channels
+from channels.models import Channels, DirectMessageChannel
 from user_messages.models import UserMessages, MessageReaction
 from friends.models import Friends, FriendRequest, BlockedUser
 from notifications.models import Notifications
@@ -271,26 +272,36 @@ class ServerJoinView(APIView):
 class ServerDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_object(self, pk, user):
+    def get_object(self, pk):
         try:
-            return Servers.objects.get(pk=pk, owner_id=user)
+            return Servers.objects.get(pk=pk)
         except Servers.DoesNotExist:
             return None
 
     def get(self, request, pk):
-        server = self.get_object(pk, request.user)
+        server = self.get_object(pk)
         if not server:
-            return Response({'error': 'Server not found or you do not have permission'},
+            return Response({'error': 'Server not found'},
                             status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is a member of the server
+        if not ServerMember.objects.filter(server=server, user=request.user).exists():
+            return Response({'error': 'You are not a member of this server'},
+                            status=status.HTTP_403_FORBIDDEN)
 
         serializer = ServerSerializer(server)
         return Response(serializer.data)
 
     def put(self, request, pk):
-        server = self.get_object(pk, request.user)
+        server = self.get_object(pk)
         if not server:
-            return Response({'error': 'Server not found or you do not have permission'},
+            return Response({'error': 'Server not found'},
                             status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is the owner of the server
+        if server.owner_id != request.user:
+            return Response({'error': 'You do not have permission to update this server'},
+                            status=status.HTTP_403_FORBIDDEN)
 
         serializer = ServerSerializer(server, data=request.data, partial=True)
         if serializer.is_valid():
@@ -299,10 +310,15 @@ class ServerDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
-        server = self.get_object(pk, request.user)
+        server = self.get_object(pk)
         if not server:
-            return Response({'error': 'Server not found or you do not have permission'},
+            return Response({'error': 'Server not found'},
                             status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is the owner of the server
+        if server.owner_id != request.user:
+            return Response({'error': 'You do not have permission to delete this server'},
+                            status=status.HTTP_403_FORBIDDEN)
 
         server.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -802,7 +818,10 @@ class ChannelViewSet(viewsets.ModelViewSet):
             server = get_object_or_404(Servers, server_id=server_id)
 
             # Check if user is a member of the server
-            if server.owner_id != self.request.user:
+            is_member = ServerMember.objects.filter(server=server, user=self.request.user).exists()
+            is_owner = server.owner_id == self.request.user
+
+            if not (is_member or is_owner):
                 return Channels.objects.none()
 
             return Channels.objects.filter(discord_server_id=server)
@@ -827,15 +846,56 @@ class DirectMessageChannelsView(APIView):
         Get all direct message channels for the current user.
         This is a special endpoint to handle the @me route in the frontend.
         """
-        # For now, return an empty list as we don't have direct message channels implemented yet
-        return Response([])
+        # Get all DM channels where the current user is either user1 or user2
+        dm_channels = DirectMessageChannel.objects.filter(
+            Q(user1=request.user) | Q(user2=request.user)
+        ).order_by('-last_message_at')
+
+        # Serialize the channels
+        serializer = DirectMessageChannelSerializer(dm_channels, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         """
         Create a new direct message channel with another user.
         """
-        # This would normally create a DM channel, but for now just return a success response
-        return Response({"message": "Direct message channel created"}, status=status.HTTP_201_CREATED)
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({"error": "User ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            other_user = Users.objects.get(user_id=user_id)
+        except Users.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if users are friends
+        are_friends = Friends.objects.filter(
+            (Q(users_id=request.user) & Q(user_friend_id=other_user)) |
+            (Q(users_id=other_user) & Q(user_friend_id=request.user))
+        ).exists()
+
+        if not are_friends:
+            return Response({"error": "You can only message users who are your friends"},
+                           status=status.HTTP_403_FORBIDDEN)
+
+        # Check if a DM channel already exists between these users
+        existing_channel = DirectMessageChannel.objects.filter(
+            (Q(user1=request.user) & Q(user2=other_user)) |
+            (Q(user1=other_user) & Q(user2=request.user))
+        ).first()
+
+        if existing_channel:
+            serializer = DirectMessageChannelSerializer(existing_channel)
+            return Response(serializer.data)
+
+        # Create a new DM channel
+        dm_channel = DirectMessageChannel.objects.create(
+            user1=request.user,
+            user2=other_user
+        )
+
+        serializer = DirectMessageChannelSerializer(dm_channel)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Direct Message with Specific User View
 class DirectMessageUserView(APIView):
@@ -845,15 +905,70 @@ class DirectMessageUserView(APIView):
         """
         Get direct messages between the current user and the specified user.
         """
-        # For now, return an empty list as we don't have direct messages implemented yet
-        return Response([])
+        try:
+            other_user = Users.objects.get(user_id=user_id)
+        except Users.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Find the DM channel between these users
+        dm_channel = DirectMessageChannel.objects.filter(
+            (Q(user1=request.user) & Q(user2=other_user)) |
+            (Q(user1=other_user) & Q(user2=request.user))
+        ).first()
+
+        if not dm_channel:
+            return Response({"error": "No direct message channel exists with this user"},
+                           status=status.HTTP_404_NOT_FOUND)
+
+        # Get messages in this channel
+        messages = UserMessages.objects.filter(dm_channel=dm_channel).order_by('time_stamp')
+        serializer = MessageSerializer(messages, many=True)
+        return Response(serializer.data)
 
     def post(self, request, user_id):
         """
         Send a direct message to the specified user.
         """
-        # This would normally send a DM, but for now just return a success response
-        return Response({"message": "Direct message sent"}, status=status.HTTP_201_CREATED)
+        try:
+            other_user = Users.objects.get(user_id=user_id)
+        except Users.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Find or create the DM channel between these users
+        dm_channel, created = DirectMessageChannel.objects.get_or_create(
+            user1=request.user if request.user.user_id < other_user.user_id else other_user,
+            user2=other_user if request.user.user_id < other_user.user_id else request.user,
+            defaults={'last_message_at': timezone.now()}
+        )
+
+        # Create the message
+        content = request.data.get('content')
+        if not content:
+            return Response({"error": "Message content is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        message = UserMessages.objects.create(
+            dm_channel=dm_channel,
+            user_channel_id=request.user,
+            content=content,
+            attachment_url=request.data.get('attachment_url'),
+            attachment_type=request.data.get('attachment_type')
+        )
+
+        # Update the last_message_at timestamp
+        dm_channel.last_message_at = timezone.now()
+        dm_channel.save()
+
+        # Create notification for the other user
+        Notifications.objects.create(
+            user_id=other_user,
+            notification_type='message',
+            message=message,
+            title='New Direct Message',
+            content=f'{request.user.username} sent you a message'
+        )
+
+        serializer = MessageSerializer(message)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # Message Views
 class MessageViewSet(viewsets.ModelViewSet):
@@ -867,7 +982,10 @@ class MessageViewSet(viewsets.ModelViewSet):
 
             # Check if user has access to this channel
             server = channel.discord_server_id
-            if server.owner_id != self.request.user:
+            is_member = ServerMember.objects.filter(server=server, user=self.request.user).exists()
+            is_owner = server.owner_id == self.request.user
+
+            if not (is_member or is_owner):
                 return UserMessages.objects.none()
 
             return UserMessages.objects.filter(message_channel_id=channel).order_by('time_stamp')
@@ -879,7 +997,10 @@ class MessageViewSet(viewsets.ModelViewSet):
 
         # Check if user has access to this channel
         server = channel.discord_server_id
-        if server.owner_id != self.request.user:
+        is_member = ServerMember.objects.filter(server=server, user=self.request.user).exists()
+        is_owner = server.owner_id == self.request.user
+
+        if not (is_member or is_owner):
             raise PermissionError("You don't have access to this channel")
 
         serializer.save(
@@ -1017,6 +1138,66 @@ class FriendListView(APIView):
         friends = Friends.objects.filter(users_id=request.user, status=True)
         serializer = FriendSerializer(friends, many=True)
         return Response(serializer.data)
+
+
+# User Browse View
+class UserBrowseView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Get a list of all users for browsing and adding friends.
+        Excludes the current user and users who are already friends.
+        """
+        # Get current user's friends
+        friends = Friends.objects.filter(users_id=request.user, status=True).values_list('user_friend_id', flat=True)
+
+        # Get all users except current user and friends
+        users = Users.objects.exclude(user_id=request.user.user_id).exclude(user_id__in=friends)
+
+        # Get blocked users
+        blocked_users = BlockedUser.objects.filter(user=request.user).values_list('blocked_user', flat=True)
+        users = users.exclude(user_id__in=blocked_users)
+
+        # Check if there's a search query
+        search_query = request.query_params.get('search', None)
+        if search_query:
+            users = users.filter(
+                Q(username__icontains=search_query) |
+                Q(display_name__icontains=search_query)
+            )
+
+        # Pagination
+        page = request.query_params.get('page', 1)
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        page_size = 20
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        # Get total count for pagination
+        total_count = users.count()
+        total_pages = (total_count + page_size - 1) // page_size
+
+        # Slice the queryset for pagination
+        users = users[start:end]
+
+        # Serialize the users
+        serializer = UserSerializer(users, many=True)
+
+        # Return the paginated response
+        return Response({
+            'users': serializer.data,
+            'pagination': {
+                'total_count': total_count,
+                'total_pages': total_pages,
+                'current_page': page,
+                'page_size': page_size
+            }
+        })
 
 class BlockedUserViewSet(viewsets.ModelViewSet):
     serializer_class = BlockedUserSerializer

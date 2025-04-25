@@ -8,6 +8,7 @@ from .views import (
 
     # User views
     UserProfileView,
+    UserBrowseView,
 
     # Server views
     ServerListCreateView,
@@ -84,4 +85,5 @@ urlpatterns = [
 
     # Friend endpoints
     path('friends/', FriendListView.as_view(), name='friend-list'),
+    path('users/browse/', UserBrowseView.as_view(), name='user-browse'),
 ]

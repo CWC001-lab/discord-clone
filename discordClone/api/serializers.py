@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from users.models import Users
 from servers.models import Servers, ServerMember, ServerRole, ServerInvite
-from channels.models import Channels
+from channels.models import Channels, DirectMessageChannel
 from user_messages.models import UserMessages, MessageReaction
 from friends.models import Friends, FriendRequest, BlockedUser
 from notifications.models import Notifications
@@ -64,6 +64,14 @@ class ChannelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Channels
         fields = ['channel_id', 'name', 'channel_type', 'created_at']
+
+class DirectMessageChannelSerializer(serializers.ModelSerializer):
+    user1_details = UserSerializer(source='user1', read_only=True)
+    user2_details = UserSerializer(source='user2', read_only=True)
+
+    class Meta:
+        model = DirectMessageChannel
+        fields = ['dm_channel_id', 'user1', 'user2', 'user1_details', 'user2_details', 'created_at', 'last_message_at']
 
 # Server Role Serializer
 class ServerRoleSerializer(serializers.ModelSerializer):
@@ -174,13 +182,13 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserMessages
-        fields = ['message_id', 'message_channel_id', 'author', 'content', 'attachment_url',
+        fields = ['message_id', 'message_channel_id', 'dm_channel', 'author', 'content', 'attachment_url',
                  'attachment_type', 'is_edited', 'edited_at', 'is_pinned', 'reactions', 'time_stamp']
 
 class MessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMessages
-        fields = ['content', 'attachment_url', 'attachment_type']
+        fields = ['content', 'attachment_url', 'attachment_type', 'dm_channel']
 
 # Friend Serializers
 class FriendRequestSerializer(serializers.ModelSerializer):

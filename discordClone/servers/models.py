@@ -10,7 +10,7 @@ class Servers(models.Model):
     icon = models.URLField(blank=True, null=True)
     owner_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='owned_servers')
     members = models.ManyToManyField(Users, related_name='joined_servers', blank=True)
-    is_public = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=True)
     invite_code = models.CharField(max_length=20, blank=True, null=True, unique=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)

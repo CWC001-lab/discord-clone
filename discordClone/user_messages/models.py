@@ -1,13 +1,14 @@
 from django.db import models
 from django.utils import timezone
-from channels.models import Channels
+from channels.models import Channels, DirectMessageChannel
 from users.models import Users
 
 
 # Create your models here.
 class UserMessages(models.Model):
     message_id = models.AutoField(primary_key=True)
-    message_channel_id = models.ForeignKey(Channels, on_delete=models.CASCADE, related_name='messages')
+    message_channel_id = models.ForeignKey(Channels, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
+    dm_channel = models.ForeignKey(DirectMessageChannel, on_delete=models.CASCADE, related_name='messages', null=True, blank=True)
     user_channel_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
     attachment_url = models.URLField(blank=True, null=True)
@@ -19,7 +20,10 @@ class UserMessages(models.Model):
     time_stamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.user_channel_id.username}: {self.content[:50]}"
+        if self.message_channel_id:
+            return f"{self.user_channel_id.username} in #{self.message_channel_id.name}: {self.content[:50]}"
+        else:
+            return f"{self.user_channel_id.username} in DM: {self.content[:50]}"
 
     class Meta:
         verbose_name = 'Message'
