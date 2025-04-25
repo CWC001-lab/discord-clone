@@ -25,7 +25,20 @@ class Users(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=128)  # Django will handle password hashing
+    display_name = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('online', 'Online'),
+            ('idle', 'Idle'),
+            ('dnd', 'Do Not Disturb'),
+            ('offline', 'Offline')
+        ],
+        default='offline'
+    )
+    avatar = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
+    last_seen = models.DateTimeField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -38,7 +51,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
         return self.username
 
     def get_full_name(self):
-        return self.username
+        return self.display_name or self.username
 
     def get_short_name(self):
         return self.username

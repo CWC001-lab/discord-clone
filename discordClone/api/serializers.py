@@ -2,13 +2,16 @@ from rest_framework import serializers
 from users.models import Users
 from servers.models import Servers
 from channels.models import Channels
+from user_messages.models import UserMessages, MessageReaction
+from friends.models import Friends, FriendRequest, BlockedUser
+from notifications.models import Notifications
 from .models import UserProfile
-# No need to import make_password as we're using the model's methods
 
+# User Serializers
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ['user_id', 'username', 'email', 'password', 'created_at']
+        fields = ['user_id', 'username', 'email', 'display_name', 'created_at']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -32,7 +35,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Users
-        fields = ['username', 'email', 'password', 'confirm_password']
+        fields = ['username', 'email', 'password', 'confirm_password', 'display_name']
 
     def validate(self, data):
         if data['password'] != data['confirm_password']:
@@ -47,7 +50,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         user = Users.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=password
+            password=password,
+            display_name=validated_data.get('display_name', validated_data['username'])
         )
         return user
 
@@ -55,17 +59,20 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
+# Channel Serializer
 class ChannelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Channels
         fields = ['channel_id', 'name', 'channel_type', 'created_at']
 
+# Server Serializers
 class ServerSerializer(serializers.ModelSerializer):
     channels = ChannelSerializer(many=True, read_only=True, source='channels_set')
+    owner_username = serializers.CharField(source='owner_id.username', read_only=True)
 
     class Meta:
         model = Servers
-        fields = ['server_id', 'name', 'owner_id', 'created_at', 'channels']
+        fields = ['server_id', 'name', 'owner_id', 'owner_username', 'created_at', 'channels']
 
 class ServerCreateSerializer(serializers.ModelSerializer):
     channels = serializers.ListField(
@@ -82,6 +89,10 @@ class ServerCreateSerializer(serializers.ModelSerializer):
         channels_data = validated_data.pop('channels', [])
         server = Servers.objects.create(**validated_data)
 
+        # Create default general channel if no channels provided
+        if not channels_data:
+            channels_data = ['general']
+
         for channel_name in channels_data:
             Channels.objects.create(
                 discord_server_id=server,
@@ -90,3 +101,61 @@ class ServerCreateSerializer(serializers.ModelSerializer):
             )
 
         return server
+
+# Message Serializers
+class MessageReactionSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+
+    class Meta:
+        model = MessageReaction
+        fields = ['reaction_id', 'message', 'user', 'username', 'emoji', 'created_at']
+
+class MessageSerializer(serializers.ModelSerializer):
+    author = UserSerializer(source='user_channel_id', read_only=True)
+    reactions = MessageReactionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = UserMessages
+        fields = ['message_id', 'message_channel_id', 'author', 'content', 'attachment_url',
+                 'attachment_type', 'is_edited', 'edited_at', 'is_pinned', 'reactions', 'time_stamp']
+
+class MessageCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserMessages
+        fields = ['content', 'attachment_url', 'attachment_type']
+
+# Friend Serializers
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+    sender_avatar = serializers.CharField(source='sender.avatar', read_only=True, allow_null=True)
+    receiver_username = serializers.CharField(source='receiver.username', read_only=True)
+    receiver_avatar = serializers.CharField(source='receiver.avatar', read_only=True, allow_null=True)
+
+    class Meta:
+        model = FriendRequest
+        fields = ['request_id', 'sender', 'sender_username', 'sender_avatar',
+                 'receiver', 'receiver_username', 'receiver_avatar',
+                 'status', 'created_at', 'updated_at']
+        read_only_fields = ['status', 'created_at', 'updated_at']
+
+class FriendSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user_friend_id.username', read_only=True)
+    display_name = serializers.CharField(source='user_friend_id.display_name', read_only=True)
+
+    class Meta:
+        model = Friends
+        fields = ['friends_id', 'user_friend_id', 'username', 'display_name', 'status', 'created_at']
+
+class BlockedUserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='blocked_user.username', read_only=True)
+
+    class Meta:
+        model = BlockedUser
+        fields = ['block_id', 'blocked_user', 'username', 'created_at']
+
+# Notification Serializers
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifications
+        fields = ['notify_id', 'user_id', 'notification_type', 'message', 'friend_request',
+                 'channel', 'server', 'title', 'content', 'is_read', 'time_stamp']

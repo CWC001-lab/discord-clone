@@ -36,3 +36,4 @@ INFO 2025-04-24 15:16:02,405 autoreload Watching for file changes with StatReloa
 INFO 2025-04-24 15:17:48,845 autoreload Watching for file changes with StatReloader
 INFO 2025-04-24 15:19:14,169 basehttp "POST /api/auth/register/ HTTP/1.1" 201 120
 INFO 2025-04-24 15:20:23,886 basehttp "POST /api/auth/login/ HTTP/1.1" 200 120
+INFO 2025-04-25 02:45:09,338 autoreload Watching for file changes with StatReloader
