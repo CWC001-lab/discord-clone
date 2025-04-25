@@ -22704,3 +22704,301 @@ INFO 2025-04-25 10:37:39,250 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\
 INFO 2025-04-25 10:37:40,882 autoreload Watching for file changes with StatReloader
 INFO 2025-04-25 10:37:54,846 autoreload C:\Users\David Eze\Desktop\PROJECTS HUB\PYTHON PROJECTS\Django\discord-clone\discord-clone-main\discordClone\api\urls.py changed, reloading.
 INFO 2025-04-25 10:37:56,402 autoreload Watching for file changes with StatReloader
+INFO 2025-04-25 10:38:13,824 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:38:14,207 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:38:15,510 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:38:24,972 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:38:25,294 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:38:25,929 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:42:36,012 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:42:36,349 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:42:36,643 basehttp "OPTIONS /api/users/browse/?page=1 HTTP/1.1" 200 0
+INFO 2025-04-25 10:42:36,646 basehttp "OPTIONS /api/users/browse/?page=1 HTTP/1.1" 200 0
+INFO 2025-04-25 10:42:37,036 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:42:37,237 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:42:37,794 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+WARNING 2025-04-25 10:43:11,563 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 10:43:11,565 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+INFO 2025-04-25 10:43:27,749 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:43:28,243 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:43:28,541 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:43:28,541 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:43:28,861 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+WARNING 2025-04-25 10:43:29,740 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 10:43:29,742 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+INFO 2025-04-25 10:44:44,235 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:44:44,260 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:44:44,439 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:44:44,689 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:44:45,151 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:44:45,154 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:46:08,552 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:46:08,709 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:46:08,899 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:46:09,235 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:47:47,075 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:47:47,083 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:47:47,214 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:47:47,407 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:47:47,719 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:47:47,980 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+WARNING 2025-04-25 10:47:51,897 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 10:47:51,898 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+WARNING 2025-04-25 10:47:53,917 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 10:47:53,918 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+WARNING 2025-04-25 10:47:59,006 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 10:47:59,006 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+INFO 2025-04-25 10:49:51,482 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:49:52,095 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:49:52,243 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:49:52,630 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:49:52,631 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:49:52,872 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:51:45,083 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:51:45,757 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:51:46,162 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:55:54,023 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:55:54,167 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:55:54,341 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:55:54,678 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:55:54,678 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:55:54,895 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+WARNING 2025-04-25 10:55:56,065 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,069 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:56,259 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,265 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:56,455 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,456 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:56,613 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,615 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:56,782 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,785 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:56,974 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:56,976 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:57,150 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:57,154 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:57,336 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:57,339 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:57,486 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:57,489 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:57,660 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:57,664 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:57,847 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:57,848 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,021 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,023 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,211 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,214 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,413 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,419 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,621 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,625 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,817 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,818 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:58,978 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:58,980 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:59,181 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:59,190 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:59,388 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:59,392 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:59,589 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:59,593 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:59,807 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:55:59,813 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:55:59,999 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,003 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:00,167 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,169 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:00,355 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,355 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:00,527 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,534 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:00,734 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,739 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:00,916 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:00,919 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:01,075 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:01,076 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:01,242 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:01,244 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:01,432 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:01,437 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:01,650 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:01,653 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:01,835 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:01,836 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,010 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,018 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,182 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,183 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,355 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,358 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,526 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,529 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,723 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,730 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:02,913 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:02,917 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,082 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,083 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,235 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,236 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,388 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,391 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,583 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,584 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,753 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,754 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:03,935 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:03,936 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:04,106 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:04,107 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:04,320 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:04,321 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:04,484 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:04,489 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:04,669 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:04,673 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:04,866 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:04,871 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,065 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,069 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,238 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,250 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,433 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,437 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,630 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,636 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,809 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,814 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:05,990 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:05,994 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:06,168 log Unauthorized: /api/channels/1/
+WARNING 2025-04-25 10:56:06,172 basehttp "GET /api/channels/1/ HTTP/1.1" 401 27
+INFO 2025-04-25 10:56:15,223 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:56:15,412 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:56:15,560 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:56:15,889 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 370
+INFO 2025-04-25 10:56:16,182 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:56:16,236 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+WARNING 2025-04-25 10:56:26,468 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 10:56:26,469 basehttp "POST /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 10:56:28,944 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 10:56:28,945 basehttp "POST /api/friend-requests/ HTTP/1.1" 401 27
+INFO 2025-04-25 10:57:04,831 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:57:05,171 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:57:05,533 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:59:56,235 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 10:59:56,799 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 10:59:57,164 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:00:26,247 basehttp "GET /api/servers/ HTTP/1.1" 200 692
+INFO 2025-04-25 11:00:26,626 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:00:27,009 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:04:35,078 basehttp "OPTIONS /api/auth/register/ HTTP/1.1" 200 0
+DEBUG 2025-04-25 11:04:35,093 views Registration request data: {'email': 'ezechinedu0000@gmail.com', 'username': 'dmd', 'password': '1234567890', 'confirm_password': '1234567890'}
+DEBUG 2025-04-25 11:04:41,015 views Registration successful: {'token': '36ab41fe194a9f9289b99f28e16fe5b8aae15b4a', 'user_id': 4, 'username': 'dmd', 'email': 'ezechinedu0000@gmail.com', 'display_name': 'dmd'}
+INFO 2025-04-25 11:04:41,018 basehttp "POST /api/auth/register/ HTTP/1.1" 201 137
+INFO 2025-04-25 11:04:41,810 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:05:20,251 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:05:20,447 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:05:20,806 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:05:21,391 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:05:45,303 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:05:45,661 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:05:46,070 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+WARNING 2025-04-25 11:05:50,559 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 11:05:50,560 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 102
+INFO 2025-04-25 11:06:35,752 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:06:36,302 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+WARNING 2025-04-25 11:06:37,130 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:06:37,131 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:37,361 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:06:37,362 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:37,364 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:37,364 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:37,570 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:37,575 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:39,727 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:39,728 basehttp "POST /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:40,027 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:06:40,028 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:40,188 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:40,189 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:42,957 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:06:42,958 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:43,116 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:06:43,118 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:43,154 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:43,156 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:06:43,318 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:06:43,320 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+INFO 2025-04-25 11:07:11,423 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:07:12,085 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:07:12,544 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:07:12,703 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+WARNING 2025-04-25 11:07:12,753 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:07:12,754 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+INFO 2025-04-25 11:07:12,918 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+WARNING 2025-04-25 11:07:12,992 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:07:12,993 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:13,101 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:13,102 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:13,275 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:13,276 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:32,864 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:32,865 basehttp "POST /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:33,154 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:07:33,181 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:33,382 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:33,384 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:37,474 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:07:37,475 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:37,677 log Unauthorized: /api/friends/
+WARNING 2025-04-25 11:07:37,679 basehttp "GET /api/friends/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:38,742 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:38,744 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+WARNING 2025-04-25 11:07:38,915 log Unauthorized: /api/friend-requests/
+WARNING 2025-04-25 11:07:38,920 basehttp "GET /api/friend-requests/ HTTP/1.1" 401 27
+INFO 2025-04-25 11:08:16,434 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:08:16,822 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:08:17,177 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+WARNING 2025-04-25 11:10:00,407 log Bad Request: /api/servers/
+WARNING 2025-04-25 11:10:00,409 basehttp "POST /api/servers/ HTTP/1.1" 400 36
+INFO 2025-04-25 11:11:02,964 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:36,644 basehttp "GET /api/servers/public/ HTTP/1.1" 200 692
+INFO 2025-04-25 11:11:37,965 basehttp "GET /api/servers/public/ HTTP/1.1" 200 692
+INFO 2025-04-25 11:11:42,615 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:43,005 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:43,866 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:44,412 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:44,828 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:45,039 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:11:45,283 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:45,597 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:11:45,758 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:46,154 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:46,691 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:47,043 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:11:47,446 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:12:26,216 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:12:27,357 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:12:27,724 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:12:39,145 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+INFO 2025-04-25 11:12:39,750 basehttp "GET /api/users/browse/?page=1 HTTP/1.1" 200 506
+WARNING 2025-04-25 11:12:44,274 log Bad Request: /api/friend-requests/
+WARNING 2025-04-25 11:12:44,275 basehttp "POST /api/friend-requests/ HTTP/1.1" 400 38
+WARNING 2025-04-25 11:13:04,635 log Bad Request: /api/servers/
+WARNING 2025-04-25 11:13:04,639 basehttp "POST /api/servers/ HTTP/1.1" 400 36
+WARNING 2025-04-25 11:13:18,095 log Bad Request: /api/servers/
+WARNING 2025-04-25 11:13:18,096 basehttp "POST /api/servers/ HTTP/1.1" 400 36
+INFO 2025-04-25 11:15:54,438 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:15:54,438 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:15:54,783 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:16:08,817 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:16:08,977 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:16:09,157 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:17:14,673 basehttp "GET /api/friends/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:17:14,834 basehttp "GET /api/servers/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:17:15,014 basehttp "GET /api/friend-requests/ HTTP/1.1" 200 2
+INFO 2025-04-25 11:19:14,355 autoreload Watching for file changes with StatReloader
+INFO 2025-04-25 11:19:58,360 autoreload Watching for file changes with StatReloader
