@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from users.models import Users
-from servers.models import Servers
+from servers.models import Servers, ServerMember, ServerRole, ServerInvite
 from channels.models import Channels
 from user_messages.models import UserMessages, MessageReaction
 from friends.models import Friends, FriendRequest, BlockedUser
@@ -65,14 +65,66 @@ class ChannelSerializer(serializers.ModelSerializer):
         model = Channels
         fields = ['channel_id', 'name', 'channel_type', 'created_at']
 
+# Server Role Serializer
+class ServerRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ServerRole
+        fields = ['id', 'server', 'name', 'color', 'position', 'is_default',
+                 'manage_channels', 'manage_server', 'manage_roles', 'manage_messages',
+                 'kick_members', 'ban_members', 'create_invites',
+                 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+# Server Invite Serializer
+class ServerInviteSerializer(serializers.ModelSerializer):
+    server_name = serializers.CharField(source='server.name', read_only=True)
+    created_by_username = serializers.CharField(source='created_by.username', read_only=True)
+    is_valid = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = ServerInvite
+        fields = ['id', 'server', 'server_name', 'code', 'created_by', 'created_by_username',
+                 'max_uses', 'uses', 'expires_at', 'created_at', 'is_valid']
+        read_only_fields = ['code', 'uses', 'created_at', 'is_valid']
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['is_valid'] = instance.is_valid()
+        return ret
+
+# Server Member Serializer
+class ServerMemberSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+    display_name = serializers.CharField(source='user.display_name', read_only=True)
+    roles = ServerRoleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ServerMember
+        fields = ['id', 'server', 'user', 'username', 'display_name', 'nickname', 'role', 'roles', 'joined_at']
+        read_only_fields = ['joined_at']
+
 # Server Serializers
 class ServerSerializer(serializers.ModelSerializer):
     channels = ChannelSerializer(many=True, read_only=True, source='channels_set')
     owner_username = serializers.CharField(source='owner_id.username', read_only=True)
+    member_count = serializers.SerializerMethodField()
+    roles_count = serializers.SerializerMethodField()
+    invites_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Servers
-        fields = ['server_id', 'name', 'owner_id', 'owner_username', 'created_at', 'channels']
+        fields = ['server_id', 'name', 'description', 'icon', 'owner_id', 'owner_username',
+                 'is_public', 'invite_code', 'created_at', 'updated_at', 'channels',
+                 'member_count', 'roles_count', 'invites_count']
+
+    def get_member_count(self, obj):
+        return ServerMember.objects.filter(server=obj).count()
+
+    def get_roles_count(self, obj):
+        return ServerRole.objects.filter(server=obj).count()
+
+    def get_invites_count(self, obj):
+        return ServerInvite.objects.filter(server=obj).count()
 
 class ServerCreateSerializer(serializers.ModelSerializer):
     channels = serializers.ListField(
@@ -83,10 +135,16 @@ class ServerCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Servers
-        fields = ['name', 'channels']
+        fields = ['name', 'description', 'icon', 'is_public', 'channels']
 
     def create(self, validated_data):
         channels_data = validated_data.pop('channels', [])
+
+        # Generate a unique invite code
+        import uuid
+        invite_code = str(uuid.uuid4())[:8]
+        validated_data['invite_code'] = invite_code
+
         server = Servers.objects.create(**validated_data)
 
         # Create default general channel if no channels provided

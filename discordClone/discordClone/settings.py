@@ -79,8 +79,20 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
+        'CONN_MAX_AGE': 60,  # 1 minute
+        'OPTIONS': {
+            'connect_timeout': 5,
+            'sslmode': 'require',
+            'keepalives': 1,
+            'keepalives_idle': 30,
+            'keepalives_interval': 10,
+            'keepalives_count': 5,
+        },
     }
 }
+
+# Log database connection status
+print("Connecting to PostgreSQL database at:", os.getenv('DB_HOST'))
 
 
 
@@ -126,15 +138,28 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.Users'
 
 # CORS settings
-# Get frontend URL from environment variable
+# Get frontend URL from environment variable or use default
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
 
-# Use specific allowed origins instead of allowing all origins
-CORS_ALLOW_ALL_ORIGINS = False
-CORS_ALLOWED_ORIGINS = [
-    FRONTEND_URL,
-]
+# In development, allow all origins for easier testing
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    # In production, use specific allowed origins
+    CORS_ALLOW_ALL_ORIGINS = False
+    CORS_ALLOWED_ORIGINS = [
+        FRONTEND_URL,
+        # Add any additional production frontend URLs here
+    ]
+
+# Allow credentials (cookies, authorization headers)
 CORS_ALLOW_CREDENTIALS = True
+
+# Add CORS_EXPOSE_HEADERS to expose the Authorization header
+CORS_EXPOSE_HEADERS = [
+    'Authorization',
+    'Content-Type',
+]
 
 
 CORS_ALLOW_METHODS = [

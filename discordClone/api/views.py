@@ -1,4 +1,6 @@
 import logging
+import uuid
+from datetime import timedelta
 from rest_framework import status, viewsets, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +10,7 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.db.models import Q
+from django.db import utils as db_utils
 
 from .serializers import (
     # User serializers
@@ -19,6 +22,9 @@ from .serializers import (
     # Server serializers
     ServerSerializer,
     ServerCreateSerializer,
+    ServerMemberSerializer,
+    ServerRoleSerializer,
+    ServerInviteSerializer,
 
     # Channel serializers
     ChannelSerializer,
@@ -39,7 +45,7 @@ from .serializers import (
 
 from .models import UserProfile
 from users.models import Users
-from servers.models import Servers
+from servers.models import Servers, ServerMember, ServerRole, ServerInvite
 from channels.models import Channels
 from user_messages.models import UserMessages, MessageReaction
 from friends.models import Friends, FriendRequest, BlockedUser
@@ -53,21 +59,39 @@ class RegisterView(APIView):
 
     def post(self, request):
         try:
+            # Log the request data for debugging
+            logger.debug(f"Registration request data: {request.data}")
+
             serializer = UserRegistrationSerializer(data=request.data)
             if serializer.is_valid():
                 user = serializer.save()
                 token, _ = Token.objects.get_or_create(user=user)
-                return Response({
+
+                # Return a more complete response
+                response_data = {
                     'token': token.key,
                     'user_id': user.user_id,
                     'username': user.username,
-                    'email': user.email
-                }, status=status.HTTP_201_CREATED)
+                    'email': user.email,
+                    'display_name': user.display_name or user.username
+                }
+
+                logger.debug(f"Registration successful: {response_data}")
+                return Response(response_data, status=status.HTTP_201_CREATED)
+
+            # Log validation errors
+            logger.error(f"Registration validation errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except db_utils.OperationalError as e:
+            # Handle database connection errors
+            error_msg = f"Database connection error: {str(e)}"
+            logger.error(error_msg)
+            return Response(
+                {'error': "Registration failed due to database connection issues. Please try again later."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         except Exception as e:
             # Log the error for debugging
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Registration error: {str(e)}")
             # Return a more informative error response
             return Response(
@@ -80,6 +104,9 @@ class LoginView(APIView):
 
     def post(self, request):
         try:
+            # Log the request data for debugging
+            logger.debug(f"Login request data: {request.data}")
+
             serializer = LoginSerializer(data=request.data)
             if serializer.is_valid():
                 email = serializer.validated_data['email']
@@ -90,21 +117,38 @@ class LoginView(APIView):
                     # Use Django's built-in check_password method
                     if user.check_password(password):
                         token, _ = Token.objects.get_or_create(user=user)
-                        return Response({
+
+                        # Return a more complete response
+                        response_data = {
                             'token': token.key,
                             'user_id': user.user_id,
                             'username': user.username,
-                            'email': user.email
-                        })
+                            'email': user.email,
+                            'display_name': user.display_name or user.username
+                        }
+
+                        logger.debug(f"Login successful: {response_data}")
+                        return Response(response_data)
                     else:
+                        logger.warning(f"Invalid credentials for user: {email}")
                         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
                 except Users.DoesNotExist:
+                    logger.warning(f"User not found: {email}")
                     return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Log validation errors
+            logger.error(f"Login validation errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except db_utils.OperationalError as e:
+            # Handle database connection errors
+            error_msg = f"Database connection error: {str(e)}"
+            logger.error(error_msg)
+            return Response(
+                {'error': "Login failed due to database connection issues. Please try again later."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
         except Exception as e:
             # Log the error for debugging
-            import logging
-            logger = logging.getLogger(__name__)
             logger.error(f"Login error: {str(e)}")
             # Return a more informative error response
             return Response(
@@ -148,8 +192,16 @@ class ServerListCreateView(APIView):
 
     def get(self, request):
         # Get servers where the user is the owner
-        servers = Servers.objects.filter(owner_id=request.user)
-        serializer = ServerSerializer(servers, many=True)
+        owned_servers = Servers.objects.filter(owner_id=request.user)
+
+        # Get servers where the user is a member
+        member_server_ids = ServerMember.objects.filter(user=request.user).values_list('server_id', flat=True)
+        member_servers = Servers.objects.filter(server_id__in=member_server_ids).exclude(owner_id=request.user)
+
+        # Combine the two querysets
+        all_servers = list(owned_servers) + list(member_servers)
+
+        serializer = ServerSerializer(all_servers, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -158,10 +210,63 @@ class ServerListCreateView(APIView):
             # Set the owner to the current user
             serializer.validated_data['owner_id'] = request.user
             server = serializer.save()
+
+            # Add the owner as a member with 'owner' role
+            ServerMember.objects.create(
+                server=server,
+                user=request.user,
+                role='owner'
+            )
+
             # Return the created server with its details
             return_serializer = ServerSerializer(server)
             return Response(return_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Public Server View
+class PublicServerListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get all public servers
+        # Filter for servers that are marked as public
+        servers = Servers.objects.filter(is_public=True)
+
+        # Exclude servers the user is already a member of
+        user_server_ids = ServerMember.objects.filter(user=request.user).values_list('server_id', flat=True)
+        servers = servers.exclude(server_id__in=user_server_ids)
+
+        serializer = ServerSerializer(servers, many=True)
+        return Response(serializer.data)
+
+# Server Join View
+class ServerJoinView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            server = Servers.objects.get(pk=pk)
+
+            # Check if user is already a member
+            if ServerMember.objects.filter(server=server, user=request.user).exists():
+                return Response({"message": "You are already a member of this server"}, status=status.HTTP_200_OK)
+
+            # Add user to server members
+            member = ServerMember.objects.create(
+                server=server,
+                user=request.user,
+                role='member'
+            )
+
+            # Serialize and return the member data
+            serializer = ServerMemberSerializer(member)
+            return Response({
+                "message": "Server joined successfully",
+                "member": serializer.data
+            }, status=status.HTTP_201_CREATED)
+
+        except Servers.DoesNotExist:
+            return Response({"error": "Server not found"}, status=status.HTTP_404_NOT_FOUND)
 
 class ServerDetailView(APIView):
     permission_classes = [IsAuthenticated]
@@ -202,6 +307,490 @@ class ServerDetailView(APIView):
         server.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# Server Members View
+class ServerMembersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, server_id):
+        """
+        Get all members of a server
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user is a member of the server
+            if not ServerMember.objects.filter(server=server, user=request.user).exists():
+                return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Get all members
+            members = ServerMember.objects.filter(server=server)
+            serializer = ServerMemberSerializer(members, many=True)
+            return Response(serializer.data)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, server_id):
+        """
+        Add a user to a server (invite)
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user is an admin or owner
+            user_member = ServerMember.objects.get(server=server, user=request.user)
+            if not user_member.has_permission('create_invites'):
+                return Response({'error': 'You do not have permission to invite users'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Get the user to invite
+            user_id = request.data.get('user_id')
+            if not user_id:
+                return Response({'error': 'User ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                user_to_invite = Users.objects.get(pk=user_id)
+            except Users.DoesNotExist:
+                return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            # Check if user is already a member
+            if ServerMember.objects.filter(server=server, user=user_to_invite).exists():
+                return Response({'error': 'User is already a member of this server'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Add user to server
+            member = ServerMember.objects.create(
+                server=server,
+                user=user_to_invite,
+                role='member'
+            )
+
+            serializer = ServerMemberSerializer(member)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+# Server Member Detail View
+class ServerMemberDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, server_id, member_id):
+        try:
+            return ServerMember.objects.get(server_id=server_id, id=member_id)
+        except ServerMember.DoesNotExist:
+            return None
+
+    def get(self, request, server_id, member_id):
+        """
+        Get details of a specific server member
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is a member of the server
+        if not ServerMember.objects.filter(server=server, user=request.user).exists():
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the member
+        member = self.get_object(server_id, member_id)
+        if not member:
+            return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ServerMemberSerializer(member)
+        return Response(serializer.data)
+
+    def put(self, request, server_id, member_id):
+        """
+        Update a server member (change role, nickname)
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to manage roles
+        try:
+            user_member = ServerMember.objects.get(server=server, user=request.user)
+            if not user_member.has_permission('manage_roles'):
+                return Response({'error': 'You do not have permission to manage roles'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the member to update
+        member = self.get_object(server_id, member_id)
+        if not member:
+            return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Cannot change the role of the server owner
+        if member.role == 'owner' and request.data.get('role') and request.data.get('role') != 'owner':
+            return Response({'error': 'Cannot change the role of the server owner'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the member
+        serializer = ServerMemberSerializer(member, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, server_id, member_id):
+        """
+        Remove a member from a server (kick)
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to kick members
+        try:
+            user_member = ServerMember.objects.get(server=server, user=request.user)
+            if not user_member.has_permission('kick_members'):
+                return Response({'error': 'You do not have permission to kick members'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the member to kick
+        member = self.get_object(server_id, member_id)
+        if not member:
+            return Response({'error': 'Member not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Cannot kick the server owner
+        if member.role == 'owner':
+            return Response({'error': 'Cannot kick the server owner'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Cannot kick yourself
+        if member.user == request.user:
+            return Response({'error': 'Cannot kick yourself'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if the user has permission to kick this member
+        # A member can only kick members with lower roles
+        if user_member.role != 'owner' and member.role in ['admin', 'moderator'] and user_member.role != 'admin':
+            return Response({'error': 'You do not have permission to kick this member'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Remove the member
+        member.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Server Roles View
+class ServerRolesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, server_id):
+        """
+        Get all roles for a server
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user is a member of the server
+            if not ServerMember.objects.filter(server=server, user=request.user).exists():
+                return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Get all roles
+            roles = ServerRole.objects.filter(server=server)
+            serializer = ServerRoleSerializer(roles, many=True)
+            return Response(serializer.data)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, server_id):
+        """
+        Create a new role for a server
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user has permission to manage roles
+            try:
+                user_member = ServerMember.objects.get(server=server, user=request.user)
+                if not user_member.has_permission('manage_roles'):
+                    return Response({'error': 'You do not have permission to manage roles'}, status=status.HTTP_403_FORBIDDEN)
+            except ServerMember.DoesNotExist:
+                return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Create the role
+            serializer = ServerRoleSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.validated_data['server'] = server
+                role = serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Server Role Detail View
+class ServerRoleDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, server_id, role_id):
+        try:
+            return ServerRole.objects.get(server_id=server_id, id=role_id)
+        except ServerRole.DoesNotExist:
+            return None
+
+    def get(self, request, server_id, role_id):
+        """
+        Get details of a specific server role
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user is a member of the server
+        if not ServerMember.objects.filter(server=server, user=request.user).exists():
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the role
+        role = self.get_object(server_id, role_id)
+        if not role:
+            return Response({'error': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ServerRoleSerializer(role)
+        return Response(serializer.data)
+
+    def put(self, request, server_id, role_id):
+        """
+        Update a server role
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to manage roles
+        try:
+            user_member = ServerMember.objects.get(server=server, user=request.user)
+            if not user_member.has_permission('manage_roles'):
+                return Response({'error': 'You do not have permission to manage roles'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the role to update
+        role = self.get_object(server_id, role_id)
+        if not role:
+            return Response({'error': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Update the role
+        serializer = ServerRoleSerializer(role, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, server_id, role_id):
+        """
+        Delete a server role
+        """
+        # Check if server exists
+        try:
+            server = Servers.objects.get(pk=server_id)
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to manage roles
+        try:
+            user_member = ServerMember.objects.get(server=server, user=request.user)
+            if not user_member.has_permission('manage_roles'):
+                return Response({'error': 'You do not have permission to manage roles'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Get the role to delete
+        role = self.get_object(server_id, role_id)
+        if not role:
+            return Response({'error': 'Role not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Cannot delete the default role
+        if role.is_default:
+            return Response({'error': 'Cannot delete the default role'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Delete the role
+        role.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Server Invites View
+class ServerInvitesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, server_id):
+        """
+        Get all invites for a server
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user has permission to view invites
+            try:
+                user_member = ServerMember.objects.get(server=server, user=request.user)
+                if not user_member.has_permission('create_invites'):
+                    return Response({'error': 'You do not have permission to view invites'}, status=status.HTTP_403_FORBIDDEN)
+            except ServerMember.DoesNotExist:
+                return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Get all invites
+            invites = ServerInvite.objects.filter(server=server)
+            serializer = ServerInviteSerializer(invites, many=True)
+            return Response(serializer.data)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, server_id):
+        """
+        Create a new invite for a server
+        """
+        try:
+            # Check if server exists
+            server = Servers.objects.get(pk=server_id)
+
+            # Check if user has permission to create invites
+            try:
+                user_member = ServerMember.objects.get(server=server, user=request.user)
+                if not user_member.has_permission('create_invites'):
+                    return Response({'error': 'You do not have permission to create invites'}, status=status.HTTP_403_FORBIDDEN)
+            except ServerMember.DoesNotExist:
+                return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Create the invite
+            max_uses = request.data.get('max_uses', 0)
+            expires_in = request.data.get('expires_in', 0)  # in hours, 0 = never expires
+
+            # Generate a unique invite code
+            code = str(uuid.uuid4())[:8]
+
+            # Calculate expiration date
+            expires_at = None
+            if expires_in > 0:
+                expires_at = timezone.now() + timedelta(hours=expires_in)
+
+            # Create the invite
+            invite = ServerInvite.objects.create(
+                server=server,
+                code=code,
+                created_by=request.user,
+                max_uses=max_uses,
+                expires_at=expires_at
+            )
+
+            serializer = ServerInviteSerializer(invite)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Servers.DoesNotExist:
+            return Response({'error': 'Server not found'}, status=status.HTTP_404_NOT_FOUND)
+
+# Server Invite Detail View
+class ServerInviteDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, invite_id):
+        try:
+            return ServerInvite.objects.get(id=invite_id)
+        except ServerInvite.DoesNotExist:
+            return None
+
+    def get(self, request, invite_id):
+        """
+        Get details of a specific server invite
+        """
+        # Get the invite
+        invite = self.get_object(invite_id)
+        if not invite:
+            return Response({'error': 'Invite not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to view this invite
+        try:
+            user_member = ServerMember.objects.get(server=invite.server, user=request.user)
+            if not user_member.has_permission('create_invites'):
+                return Response({'error': 'You do not have permission to view this invite'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = ServerInviteSerializer(invite)
+        return Response(serializer.data)
+
+    def delete(self, request, invite_id):
+        """
+        Delete a server invite
+        """
+        # Get the invite
+        invite = self.get_object(invite_id)
+        if not invite:
+            return Response({'error': 'Invite not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if user has permission to delete this invite
+        try:
+            user_member = ServerMember.objects.get(server=invite.server, user=request.user)
+            # Only the invite creator, admins, or the server owner can delete invites
+            if invite.created_by != request.user and not user_member.has_permission('manage_server'):
+                return Response({'error': 'You do not have permission to delete this invite'}, status=status.HTTP_403_FORBIDDEN)
+        except ServerMember.DoesNotExist:
+            return Response({'error': 'You are not a member of this server'}, status=status.HTTP_403_FORBIDDEN)
+
+        # Delete the invite
+        invite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Join Server by Invite Code
+class JoinServerByInviteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+        Join a server using an invite code
+        """
+        # Get the invite code
+        code = request.data.get('code')
+        if not code:
+            return Response({'error': 'Invite code is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Find the invite
+        try:
+            invite = ServerInvite.objects.get(code=code)
+        except ServerInvite.DoesNotExist:
+            return Response({'error': 'Invalid invite code'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Check if the invite is valid
+        if not invite.is_valid():
+            return Response({'error': 'This invite has expired or reached its maximum uses'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user is already a member of the server
+        if ServerMember.objects.filter(server=invite.server, user=request.user).exists():
+            return Response({'error': 'You are already a member of this server'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Add user to server
+        member = ServerMember.objects.create(
+            server=invite.server,
+            user=request.user,
+            role='member'
+        )
+
+        # Increment the invite uses
+        invite.uses += 1
+        invite.save()
+
+        # Return the server details
+        server_serializer = ServerSerializer(invite.server)
+        return Response({
+            'message': f'You have joined {invite.server.name}',
+            'server': server_serializer.data
+        }, status=status.HTTP_201_CREATED)
+
 # Channel Views
 class ChannelViewSet(viewsets.ModelViewSet):
     serializer_class = ChannelSerializer
@@ -228,6 +817,43 @@ class ChannelViewSet(viewsets.ModelViewSet):
             raise PermissionError("You don't have permission to create channels")
 
         serializer.save(discord_server_id=server)
+
+# Direct Message Channels View
+class DirectMessageChannelsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Get all direct message channels for the current user.
+        This is a special endpoint to handle the @me route in the frontend.
+        """
+        # For now, return an empty list as we don't have direct message channels implemented yet
+        return Response([])
+
+    def post(self, request):
+        """
+        Create a new direct message channel with another user.
+        """
+        # This would normally create a DM channel, but for now just return a success response
+        return Response({"message": "Direct message channel created"}, status=status.HTTP_201_CREATED)
+
+# Direct Message with Specific User View
+class DirectMessageUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        """
+        Get direct messages between the current user and the specified user.
+        """
+        # For now, return an empty list as we don't have direct messages implemented yet
+        return Response([])
+
+    def post(self, request, user_id):
+        """
+        Send a direct message to the specified user.
+        """
+        # This would normally send a DM, but for now just return a success response
+        return Response({"message": "Direct message sent"}, status=status.HTTP_201_CREATED)
 
 # Message Views
 class MessageViewSet(viewsets.ModelViewSet):

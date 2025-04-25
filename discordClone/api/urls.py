@@ -12,9 +12,20 @@ from .views import (
     # Server views
     ServerListCreateView,
     ServerDetailView,
+    PublicServerListView,
+    ServerJoinView,
+    ServerMembersView,
+    ServerMemberDetailView,
+    ServerRolesView,
+    ServerRoleDetailView,
+    ServerInvitesView,
+    ServerInviteDetailView,
+    JoinServerByInviteView,
 
     # Channel views
     ChannelViewSet,
+    DirectMessageChannelsView,
+    DirectMessageUserView,
 
     # Message views
     MessageViewSet,
@@ -50,7 +61,26 @@ urlpatterns = [
 
     # Server endpoints
     path('servers/', ServerListCreateView.as_view(), name='server-list-create'),
+    path('servers/public/', PublicServerListView.as_view(), name='public-server-list'),
+    path('servers/join/', JoinServerByInviteView.as_view(), name='join-server-by-invite'),
     path('servers/<int:pk>/', ServerDetailView.as_view(), name='server-detail'),
+    path('servers/<int:pk>/join/', ServerJoinView.as_view(), name='server-join'),
+
+    # Server Members
+    path('servers/<int:server_id>/members/', ServerMembersView.as_view(), name='server-members'),
+    path('servers/<int:server_id>/members/<int:member_id>/', ServerMemberDetailView.as_view(), name='server-member-detail'),
+
+    # Server Roles
+    path('servers/<int:server_id>/roles/', ServerRolesView.as_view(), name='server-roles'),
+    path('servers/<int:server_id>/roles/<int:role_id>/', ServerRoleDetailView.as_view(), name='server-role-detail'),
+
+    # Server Invites
+    path('servers/<int:server_id>/invites/', ServerInvitesView.as_view(), name='server-invites'),
+    path('invites/<int:invite_id>/', ServerInviteDetailView.as_view(), name='server-invite-detail'),
+
+    # Direct Message endpoints
+    path('channels/@me/', DirectMessageChannelsView.as_view(), name='direct-messages'),
+    path('channels/@me/<int:user_id>/', DirectMessageUserView.as_view(), name='direct-message-user'),
 
     # Friend endpoints
     path('friends/', FriendListView.as_view(), name='friend-list'),
